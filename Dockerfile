@@ -1,12 +1,10 @@
-FROM php:8.3-apache
+FROM php:8.3-cli AS builder
 
 WORKDIR /app
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-    composer \
+# Install dependencies for building
+RUN apt-get update -qq && apt-get install -y -qq \
     git \
-    curl \
     sqlite3 \
     libsqlite3-dev \
     && rm -rf /var/lib/apt/lists/*
@@ -14,20 +12,36 @@ RUN apt-get update && apt-get install -y \
 # Install PHP extensions
 RUN docker-php-ext-install pdo pdo_sqlite
 
-# Enable Apache mod_rewrite
-RUN a2enmod rewrite
+# Install composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Copy project files
 COPY . .
 
-# Install PHP dependencies and build Laravel app
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader --quiet
+
+# Build Laravel app
 RUN bash scripts/render-build.sh
 
-# Set permissions
-RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache /app/app/Http
+# Production stage
+FROM php:8.3-cli
 
-# Configure Apache
-COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
+WORKDIR /app
+
+# Install runtime dependencies only
+RUN apt-get update -qq && apt-get install -y -qq \
+    sqlite3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install PHP extensions
+RUN docker-php-ext-install pdo pdo_sqlite
+
+# Copy from builder
+COPY --from=builder /app /app
+
+# Set permissions
+RUN chown -R nobody:nogroup /app/storage /app/bootstrap/cache
 
 # Expose port
 EXPOSE 8000
