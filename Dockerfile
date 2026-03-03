@@ -7,6 +7,7 @@ RUN apt-get update -qq && apt-get install -y -qq \
     git \
     sqlite3 \
     libsqlite3-dev \
+    libzip-dev \
     unzip \
     && rm -rf /var/lib/apt/lists/*
 
@@ -40,6 +41,7 @@ WORKDIR /app
 RUN apt-get update -qq && apt-get install -y -qq \
     sqlite3 \
     libsqlite3-dev \
+    libzip-dev \
     pkg-config \
     unzip \
     && rm -rf /var/lib/apt/lists/*
