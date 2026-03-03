@@ -29,15 +29,17 @@ FROM php:8.3-cli
 
 WORKDIR /app
 
-# Install runtime dependencies only
+# Install runtime dependencies (including build deps for extensions)
 RUN apt-get update -qq && apt-get install -y -qq \
     sqlite3 \
+    libsqlite3-dev \
+    pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo pdo_sqlite
 
-# Copy from builder
+# Copy built app from builder
 COPY --from=builder /app /app
 
 # Set permissions
