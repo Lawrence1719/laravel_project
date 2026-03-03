@@ -52,12 +52,15 @@ RUN docker-php-ext-install pdo pdo_sqlite zip
 # Copy built app from builder
 COPY --from=builder /app /app
 
+# Set working directory to the actual Laravel root created by the build script
+WORKDIR /app/app
+
 # Ensure directories exist then set permissions
-RUN mkdir -p /app/storage /app/bootstrap/cache \
-    && chown -R nobody:nogroup /app/storage /app/bootstrap/cache
+RUN mkdir -p /app/app/storage /app/app/bootstrap/cache \
+    && chown -R nobody:nogroup /app/app/storage /app/app/bootstrap/cache
 
 # Expose port
 EXPOSE 8000
 
-# Start Laravel
-CMD ["php", "-S", "0.0.0.0:8000", "-t", "/app/public"]
+# Start Laravel using correct public path
+CMD ["php", "-S", "0.0.0.0:8000", "-t", "/app/app/public"]
