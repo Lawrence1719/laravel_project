@@ -20,5 +20,9 @@ cp scaffold/resources/views/dashboard.blade.php "$APP_DIR/resources/views/dashbo
 cp scaffold/resources/views/auth.blade.php "$APP_DIR/resources/views/auth.blade.php"
 
 cd "$APP_DIR"
+# copy example env if missing (create-project doesn't always do this inside Docker)
+if [ ! -f .env ]; then
+  cp .env.example .env
+fi
 php artisan key:generate --force
 php artisan migrate --force
