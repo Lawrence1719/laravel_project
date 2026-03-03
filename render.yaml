@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: laravel-vue-dynamic-demo
+    env: php
+    plan: free
+    buildCommand: "bash scripts/render-build.sh"
+    startCommand: "bash scripts/render-start.sh"
