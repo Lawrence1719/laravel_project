@@ -7,10 +7,11 @@ RUN apt-get update -qq && apt-get install -y -qq \
     git \
     sqlite3 \
     libsqlite3-dev \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo pdo_sqlite
+RUN docker-php-ext-install pdo pdo_sqlite zip
 
 # Install composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -40,16 +41,18 @@ RUN apt-get update -qq && apt-get install -y -qq \
     sqlite3 \
     libsqlite3-dev \
     pkg-config \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo pdo_sqlite
+RUN docker-php-ext-install pdo pdo_sqlite zip
 
 # Copy built app from builder
 COPY --from=builder /app /app
 
-# Set permissions
-RUN chown -R nobody:nogroup /app/storage /app/bootstrap/cache
+# Ensure directories exist then set permissions
+RUN mkdir -p /app/storage /app/bootstrap/cache \
+    && chown -R nobody:nogroup /app/storage /app/bootstrap/cache
 
 # Expose port
 EXPOSE 8000
