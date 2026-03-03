@@ -18,10 +18,16 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy project files
 COPY . .
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --quiet
+# Move into the Laravel application directory
+WORKDIR /app/app
 
-# Build Laravel app
+# Install PHP dependencies inside Laravel folder
+RUN composer install --no-dev --optimize-autoloader
+
+# switch back to root app folder and build Laravel
+WORKDIR /app
+
+# Build Laravel app (script expects to run from repo root)
 RUN bash scripts/render-build.sh
 
 # Production stage
