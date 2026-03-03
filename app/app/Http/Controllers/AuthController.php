@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -32,6 +33,9 @@ class AuthController extends Controller
 
         Auth::login($user);
 
+        // log the registration event for debugging/testing purposes
+        Log::info('User registered', ['user_id' => $user->id, 'email' => $user->email]);
+
         return response()->json([
             'message' => 'Registration successful.',
             'user' => $user->only(['name', 'email']),
@@ -52,6 +56,9 @@ class AuthController extends Controller
         }
 
         $request->session()->regenerate();
+
+        // record login event
+        Log::info('User logged in', ['user_id' => $request->user()->id, 'email' => $request->user()->email]);
 
         return response()->json([
             'message' => 'Login successful.',
